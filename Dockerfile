@@ -1,13 +1,15 @@
 # syntax=docker/dockerfile:1
 
 FROM golang:1.26-alpine AS build
+ARG TARGETOS=linux
+ARG TARGETARCH
 
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/dogecloud-webdav-gateway ./cmd/dogecloud-webdav-gateway
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags="-s -w" -o /out/dogecloud-webdav-gateway ./cmd/dogecloud-webdav-gateway
 
 FROM gcr.io/distroless/static-debian12:nonroot
 
